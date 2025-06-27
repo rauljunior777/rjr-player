@@ -32,6 +32,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
   bool _showStatusIcon = false;
   Timer? _hideTimer;
   IconData _statusIcon = Icons.play_arrow;
+  final GlobalKey _videoKey = GlobalKey();
 
   @override
   void initState() {
@@ -105,6 +106,15 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
     }
   }
 
+  double _getHalfVideoHeight() {
+    final renderBox =
+        _videoKey.currentContext?.findRenderObject() as RenderBox?;
+    if (renderBox != null && renderBox.hasSize) {
+      return renderBox.size.height / 2;
+    }
+    return MediaQuery.of(context).size.height * 0.25; // valor de respaldo
+  }
+
   @override
   void dispose() {
     _controller.dispose();
@@ -137,6 +147,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
         child: _showTopPanel
             ? Container(
                 key: ValueKey(true),
+                height: _getHalfVideoHeight(),
                 color: Colors.black.withOpacity(0.5),
                 padding: const EdgeInsets.only(top: 12.0, bottom: 9.0),
                 child: Row(
@@ -315,6 +326,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
         child: _showControls
             ? Container(
                 key: ValueKey(true),
+                height: _getHalfVideoHeight(),
                 color: Colors.black.withOpacity(0.5),
                 padding: const EdgeInsets.only(top: 4.0, bottom: 0.0),
                 child: Column(
@@ -391,6 +403,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                       alignment: Alignment.center,
                       children: [
                         AspectRatio(
+                          key: _videoKey,
                           aspectRatio: _controller.value.aspectRatio,
                           child: VideoPlayer(_controller),
                         ),
