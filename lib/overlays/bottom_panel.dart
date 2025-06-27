@@ -18,7 +18,7 @@ Widget buildBottomOverlay({
           ? Container(
               key: ValueKey(true),
               height: height,
-              color: Colors.black.withOpacity(0.5),
+              color: Colors.black.withAlpha(128),
               padding: const EdgeInsets.only(top: 4.0, bottom: 0.0),
               child: Column(
                 mainAxisSize: MainAxisSize.min,

@@ -16,7 +16,7 @@ Widget buildProgressBar({
           activeTrackColor: Colors.cyanAccent,
           inactiveTrackColor: Colors.grey[700],
           thumbColor: Colors.cyan,
-          overlayColor: Colors.cyan.withOpacity(0.2),
+          overlayColor: Color.fromARGB(51, 0, 255, 255),
         ),
         child: Slider(
           min: 0,

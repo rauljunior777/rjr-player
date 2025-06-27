@@ -19,7 +19,7 @@ Widget buildTopOverlay({
           ? Container(
               key: ValueKey(true),
               height: height,
-              color: Colors.black.withOpacity(0.5),
+              color: Colors.black.withAlpha(128),
               padding: const EdgeInsets.only(top: 24.0, bottom: 12.0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,

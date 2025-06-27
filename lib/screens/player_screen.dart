@@ -6,7 +6,6 @@ import 'package:video_player/video_player.dart';
 import '../widgets/player_controls.dart';
 import '../overlays/top_panel.dart';
 import '../overlays/bottom_panel.dart';
-import '../utils/helpers.dart';
 import 'otra_ventana.dart';
 
 class VideoPlayerScreen extends StatefulWidget {
@@ -30,8 +29,8 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
   void initState() {
     super.initState();
     _controller =
-        VideoPlayerController.network(
-            'https://www.w3schools.com/html/mov_bbb.mp4',
+        VideoPlayerController.networkUrl(
+            Uri.parse('https://www.w3schools.com/html/mov_bbb.mp4'),
           )
           ..initialize().then((_) {
             setState(() {});
@@ -173,7 +172,12 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                             duration: Duration(milliseconds: 1500),
                             child: Icon(
                               _statusIcon,
-                              color: Colors.white.withOpacity(0.9),
+                              color: Color.fromARGB(
+                                230,
+                                255,
+                                255,
+                                255,
+                              ), // 0.9 * 255 = 229.5 ≈ 230
                               size: 100,
                             ),
                           ),
