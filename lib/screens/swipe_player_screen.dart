@@ -2,7 +2,6 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 import '../models/video_item.dart';
-import '../widgets/player_controls.dart';
 
 class SwipePlayerScreen extends StatefulWidget {
   final List<VideoItem> playlist;
@@ -39,7 +38,6 @@ class _SwipePlayerScreenState extends State<SwipePlayerScreen> {
     final controller = VideoPlayerController.file(file);
     await controller.initialize();
     await controller.setPlaybackSpeed(_playbackSpeed);
-
     _controllers[index] = controller;
     return controller;
   }
@@ -97,94 +95,80 @@ class _SwipePlayerScreenState extends State<SwipePlayerScreen> {
               final controller = snapshot.data!;
               final title = widget.playlist[index].name;
 
-              return Stack(
-                alignment: Alignment.center,
+              return Column(
                 children: [
-                  Column(
+                  const SizedBox(height: 40),
+                  Text(
+                    '${index + 1} / ${widget.playlist.length}',
+                    style: const TextStyle(color: Colors.white70),
+                  ),
+                  const SizedBox(height: 8),
+                  AspectRatio(
+                    aspectRatio: controller.value.aspectRatio,
+                    child: VideoPlayer(controller),
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      AspectRatio(
-                        aspectRatio: controller.value.aspectRatio,
-                        child: VideoPlayer(controller),
+                      IconButton(
+                        icon: const Icon(Icons.skip_previous),
+                        onPressed: () {
+                          if (index > 0) {
+                            _pageController.previousPage(
+                              duration: const Duration(milliseconds: 300),
+                              curve: Curves.easeInOut,
+                            );
+                          }
+                        },
+                        color: Colors.white,
                       ),
-                      PlayerControls(
-                        controller: controller,
-                        onTogglePlay: () {
+                      IconButton(
+                        icon: Icon(
+                          controller.value.isPlaying
+                              ? Icons.pause
+                              : Icons.play_arrow,
+                        ),
+                        onPressed: () {
                           setState(() {
                             controller.value.isPlaying
                                 ? controller.pause()
                                 : controller.play();
                           });
                         },
+                        color: Colors.white,
+                        iconSize: 34,
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.skip_next),
+                        onPressed: () {
+                          if (index < widget.playlist.length - 1) {
+                            _pageController.nextPage(
+                              duration: const Duration(milliseconds: 300),
+                              curve: Curves.easeInOut,
+                            );
+                          }
+                        },
+                        color: Colors.white,
+                      ),
+                      const SizedBox(width: 12),
+                      DropdownButton<double>(
+                        value: _playbackSpeed,
+                        dropdownColor: Colors.grey[900],
+                        style: const TextStyle(color: Colors.white),
+                        underline: const SizedBox(),
+                        onChanged: (value) =>
+                            _setSpeed(value ?? _playbackSpeed),
+                        items: [0.12, 0.25, 0.5, 1.0, 1.5, 2.0]
+                            .map(
+                              (speed) => DropdownMenuItem(
+                                value: speed,
+                                child: Text('${speed}x'),
+                              ),
+                            )
+                            .toList(),
                       ),
                     ],
-                  ),
-                  Positioned(
-                    top: 40,
-                    left: 20,
-                    right: 20,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            IconButton(
-                              icon: const Icon(Icons.skip_previous),
-                              onPressed: () {
-                                if (index > 0) {
-                                  _pageController.previousPage(
-                                    duration: const Duration(milliseconds: 300),
-                                    curve: Curves.easeInOut,
-                                  );
-                                }
-                              },
-                              color: Colors.white,
-                            ),
-                            Expanded(
-                              child: Center(
-                                child: Text(
-                                  title,
-                                  style: const TextStyle(
-                                    color: Colors.white70,
-                                    fontSize: 14,
-                                  ),
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ),
-                            ),
-                            IconButton(
-                              icon: const Icon(Icons.skip_next),
-                              onPressed: () {
-                                if (index < widget.playlist.length - 1) {
-                                  _pageController.nextPage(
-                                    duration: const Duration(milliseconds: 300),
-                                    curve: Curves.easeInOut,
-                                  );
-                                }
-                              },
-                              color: Colors.white,
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 6),
-                        DropdownButton<double>(
-                          value: _playbackSpeed,
-                          dropdownColor: Colors.grey[900],
-                          style: const TextStyle(color: Colors.white),
-                          underline: const SizedBox(),
-                          onChanged: (value) =>
-                              _setSpeed(value ?? _playbackSpeed),
-                          items: [0.12, 0.25, 0.5, 1.0, 1.5, 2.0]
-                              .map(
-                                (speed) => DropdownMenuItem(
-                                  value: speed,
-                                  child: Text('${speed}x'),
-                                ),
-                              )
-                              .toList(),
-                        ),
-                      ],
-                    ),
                   ),
                 ],
               );
