@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:rjr_player/screens/otra_ventana.dart';
+import 'screens/selector_screen.dart';
 
 void main() => runApp(const VideoPlayerApp());
 
@@ -12,7 +12,7 @@ class VideoPlayerApp extends StatelessWidget {
       title: 'RJR Player',
       theme: ThemeData.dark(),
       debugShowCheckedModeBanner: false,
-      home: const OtraVentana(),
+      home: const SelectorScreen(),
     );
   }
 }
