@@ -1,7 +1,7 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import '../models/video_item.dart';
-import 'player_screen.dart';
+import 'swipe_player_screen.dart';
 import '../widgets/file_tile.dart';
 
 class SelectorScreen extends StatefulWidget {
@@ -33,7 +33,8 @@ class _SelectorScreenState extends State<SelectorScreen> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => PlayerScreen(playlist: playlist, startIndex: index),
+        builder: (_) =>
+            SwipePlayerScreen(playlist: playlist, startIndex: index),
       ),
     );
   }
