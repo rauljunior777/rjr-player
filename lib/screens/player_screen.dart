@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:video_player/video_player.dart';
@@ -9,12 +10,22 @@ import '../overlays/bottom_panel.dart';
 import 'otra_ventana.dart';
 
 class VideoPlayerScreen extends StatefulWidget {
+  final List<String> playlist;
+  final int initialIndex;
+
+  const VideoPlayerScreen({
+    Key? key,
+    required this.playlist,
+    this.initialIndex = 0,
+  }) : super(key: key);
+
   @override
   _VideoPlayerScreenState createState() => _VideoPlayerScreenState();
 }
 
 class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
   late VideoPlayerController _controller;
+  bool _isControllerInitialized = false;
   double _playbackSpeed = 1.0;
   bool _isFullscreen = false;
   bool _isRotated = false;
@@ -25,18 +36,71 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
   Timer? _hideTimer;
   final GlobalKey _videoKey = GlobalKey();
 
+  late int _currentIndex;
+  List<String> get playlist => widget.playlist;
+
   @override
   void initState() {
     super.initState();
-    _controller =
-        VideoPlayerController.networkUrl(
-            Uri.parse('https://www.w3schools.com/html/mov_bbb.mp4'),
-          )
-          ..initialize().then((_) {
-            setState(() {});
-            _controller.play();
-            _startHideTimer();
-          });
+    _currentIndex = widget.initialIndex;
+    _loadVideo(_currentIndex);
+  }
+
+  void _loadVideo(int index) async {
+    final path = playlist[index];
+
+    try {
+      final file = File(path);
+      if (!await file.exists()) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('El archivo no existe: $path')));
+        return;
+      }
+
+      // Liberar controlador anterior si ya existe
+      if (_controller.value.isInitialized) {
+        await _controller.pause();
+        await _controller.dispose();
+      }
+
+      _controller = VideoPlayerController.file(File(playlist[index]));
+
+      await _controller.initialize();
+      setState(() {
+        _currentIndex = index;
+        _isControllerInitialized = true;
+      });
+      _controller.play();
+      _startHideTimer();
+
+      _controller.addListener(() {
+        final isAtEnd =
+            _controller.value.position >= _controller.value.duration &&
+            !_controller.value.isPlaying;
+
+        if (isAtEnd) _playNext();
+      });
+    } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Error cargando video: $e')));
+      print('[RJR] Error cargando video $path: $e');
+    }
+  }
+
+  void _playNext() {
+    if (_currentIndex + 1 < playlist.length) {
+      _controller.dispose();
+      _loadVideo(_currentIndex + 1);
+    }
+  }
+
+  void _playPrevious() {
+    if (_currentIndex > 0) {
+      _controller.dispose();
+      _loadVideo(_currentIndex - 1);
+    }
   }
 
   void _startHideTimer() {
@@ -112,6 +176,13 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (!_isControllerInitialized) {
+      return const Scaffold(
+        backgroundColor: Colors.black,
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
     return Scaffold(
       appBar: _isFullscreen
           ? null
@@ -185,12 +256,15 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                           isVisible: _showTopPanel,
                           isRotated: _isRotated,
                           onRotate: _toggleRotation,
+                          title: playlist[_currentIndex].split('/').last,
                           onOpenWindow: () {
                             Navigator.push(
                               context,
                               MaterialPageRoute(builder: (_) => OtraVentana()),
                             );
                           },
+                          onPrevious: _playPrevious,
+                          onNext: _playNext,
                           height: height,
                         ),
                         buildBottomOverlay(

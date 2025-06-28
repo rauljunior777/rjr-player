@@ -5,7 +5,10 @@ Widget buildTopOverlay({
   required bool isRotated,
   required VoidCallback onRotate,
   required VoidCallback onOpenWindow,
+  required VoidCallback onPrevious,
+  required VoidCallback onNext,
   required double height,
+  required String title,
 }) {
   return Positioned(
     top: 0,
@@ -25,6 +28,12 @@ Widget buildTopOverlay({
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   IconButton(
+                    icon: Icon(Icons.skip_previous),
+                    tooltip: 'Anterior',
+                    onPressed: onPrevious,
+                    color: Colors.white,
+                  ),
+                  IconButton(
                     icon: Icon(
                       isRotated
                           ? Icons.screen_lock_rotation
@@ -33,10 +42,29 @@ Widget buildTopOverlay({
                     color: Colors.white,
                     onPressed: onRotate,
                   ),
+                  Expanded(
+                    child: Center(
+                      child: Text(
+                        title,
+                        style: TextStyle(
+                          color: Colors.white70,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ),
                   IconButton(
                     icon: Icon(Icons.open_in_new),
                     color: Colors.white,
                     onPressed: onOpenWindow,
+                  ),
+                  IconButton(
+                    icon: Icon(Icons.skip_next),
+                    tooltip: 'Siguiente',
+                    onPressed: onNext,
+                    color: Colors.white,
                   ),
                 ],
               ),
